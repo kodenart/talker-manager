@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { readJson } = require('./helpers/fsJson');
-const { errorHandler } = require('./middlewares');
+const { generateToken } = require('./helpers/tokenGenerator');
+const { errorHandler, validateAuth } = require('./middlewares');
 
 const talkerPath = './talker.json';
 const app = express();
@@ -33,6 +34,12 @@ app.get('/talker/:id', (req, res, next) => {
     .catch((err) => next(err));
 });
 
+app.post('/login', validateAuth, (req, res) => {
+  const token = generateToken();
+  res.status(200).json({ token });
+});
+
+// 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
