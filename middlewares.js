@@ -1,5 +1,7 @@
 const { readJson, writeJson } = require('./helpers/fsJson');
 
+const talkerPath = './talker.json';
+
 const errorHandler = (err, req, res, _next) => {
   res.status(500).json({ error: err.message });
 };
@@ -108,7 +110,7 @@ const addTalker = (req, res, next) => {
   const { name, age, talk: { watchedAt, rate } } = req.body;
   let finalArr = [];
   let newTalkPerson;
-  readJson('./talker.json')
+  readJson(talkerPath)
     .then((content) => {
     // auto increment alike
     const id = content.length + 1;
@@ -116,7 +118,7 @@ const addTalker = (req, res, next) => {
     content.push(newTalkPerson);
     finalArr = [...content];
   })
-    .then(() => writeJson('./talker.json', finalArr))
+    .then(() => writeJson(talkerPath, finalArr))
     .then(() => {
         req.talker = newTalkPerson;
         next();
@@ -127,14 +129,28 @@ const addTalker = (req, res, next) => {
 const updateTalker = async (req, res, next) => {
   const { id } = req.params;
   const { name, age, talk } = req.body;
-  const content = await readJson('./talker.json').catch((err) => next(err));
+  const content = await readJson(talkerPath).catch((err) => next(err));
   const talkerIndex = content.findIndex((e) => e.id === Number(id));
   if (talkerIndex === undefined || talkerIndex < 0) {
     return res.status(404).json({ message: 'Esse palestrante não existe' }); 
     }
   content[talkerIndex] = { name, age, id: Number(id), talk };
   req.talker = content[talkerIndex];
-  writeJson('./talker.json', content)
+  writeJson(talkerPath, content)
+    .then(() => next())
+    .catch((err) => next(err));
+};
+
+const deleteTalker = async (req, res, next) => {
+  const { id } = req.params;
+  const content = await readJson(talkerPath).catch((err) => next(err));
+  const talkerIndex = content.findIndex((e) => e.id === Number(id));
+  if (talkerIndex === undefined || talkerIndex < 0) {
+    return res.status(404).json({ message: 'Esse palestrante não existe' }); 
+    }
+  // removing
+  content.splice(talkerIndex, 1);
+  writeJson(talkerPath, content)
     .then(() => next())
     .catch((err) => next(err));
 };
@@ -148,4 +164,6 @@ errorHandler,
 validateAuth,
 talkerValidation,
 addTalker,
-updateTalker };
+updateTalker,
+deleteTalker,
+validateToken };

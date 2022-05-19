@@ -8,6 +8,8 @@ validateAuth,
 talkerValidation,
 addTalker,
 updateTalker,
+deleteTalker,
+validateToken,
  } = require('./middlewares');
 
 const talkerPath = './talker.json';
@@ -55,6 +57,10 @@ app.put('/talker/:id', talkerValidation, updateTalker, (req, res) => {
   const { talker } = req;
   const { id, name, age, talk } = talker;
   res.status(200).json({ id, name, age, talk });
+});
+
+app.delete('/talker/:id', validateToken, deleteTalker, (req, res) => {
+  res.status(204).end();
 });
 
 // 
