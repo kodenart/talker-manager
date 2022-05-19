@@ -60,7 +60,8 @@ const validateTalk = (req, res, next) => {
        }); 
     }
   const { watchedAt, rate } = talk;
-  if (!watchedAt || !rate) {
+  // comparing with undefined since a not desired behavior happens when rate = 0;
+  if (watchedAt === undefined || rate === undefined) {
     return res.status(400)
       .json({ 
         message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
@@ -86,21 +87,56 @@ const validateTalkInfos = (req, res, next) => {
   next();
 };
 
+// const addTalker = (req, res, next) => {
+//   const { name, age, talk: { watchedAt, rate } } = req.body;
+//   readJson('./talker.json').then((content) => {
+//     // auto increment alike
+//     const id = content.length + 1;
+//     const newTalkPerson = { name, age, id, talk: { watchedAt, rate } };
+//     content.push(newTalkPerson);
+//     writeJson('./talker.json', content)
+//       .then(() => {
+//         // setting req.talker so I can access on the next middleware.
+//         req.talker = newTalkPerson;
+//         next();
+//       })
+//       .catch((err) => next(err));
+//   }).catch((err) => next(err));
+// };
+
 const addTalker = (req, res, next) => {
   const { name, age, talk: { watchedAt, rate } } = req.body;
-  readJson('./talker.json').then((content) => {
+  let finalArr = [];
+  let newTalkPerson;
+  readJson('./talker.json')
+    .then((content) => {
     // auto increment alike
     const id = content.length + 1;
-    const newTalkPerson = { name, age, id, talk: { watchedAt, rate } };
+    newTalkPerson = { name, age, id, talk: { watchedAt, rate } };
     content.push(newTalkPerson);
-    writeJson('./talker.json', content)
-      .then(() => {
-        // setting req.talker so I can access on the next middleware.
+    finalArr = [...content];
+  })
+    .then(() => writeJson('./talker.json', finalArr))
+    .then(() => {
         req.talker = newTalkPerson;
         next();
-      })
-      .catch((err) => next(err));
-  }).catch((err) => next(err));
+    })
+    .catch((err) => next(err));
+};
+
+const updateTalker = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, age, talk } = req.body;
+  const content = await readJson('./talker.json').catch((err) => next(err));
+  const talkerIndex = content.findIndex((e) => e.id === Number(id));
+  if (talkerIndex === undefined || talkerIndex < 0) {
+    return res.status(404).json({ message: 'Esse palestrante não existe' }); 
+    }
+  content[talkerIndex] = { name, age, id: Number(id), talk };
+  req.talker = content[talkerIndex];
+  writeJson('./talker.json', content)
+    .then(() => next())
+    .catch((err) => next(err));
 };
 
 const talkerValidation = [validateToken, 
@@ -111,4 +147,5 @@ module.exports = {
 errorHandler,
 validateAuth,
 talkerValidation,
-addTalker };
+addTalker,
+updateTalker };

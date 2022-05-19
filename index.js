@@ -7,6 +7,7 @@ const {
 validateAuth,
 talkerValidation,
 addTalker,
+updateTalker,
  } = require('./middlewares');
 
 const talkerPath = './talker.json';
@@ -48,6 +49,12 @@ app.post('/talker', talkerValidation, addTalker, (req, res) => {
   const { talker } = req;
   const { id, name, age, talk } = talker;
   res.status(201).json({ id, name, age, talk });
+});
+
+app.put('/talker/:id', talkerValidation, updateTalker, (req, res) => {
+  const { talker } = req;
+  const { id, name, age, talk } = talker;
+  res.status(200).json({ id, name, age, talk });
 });
 
 // 
