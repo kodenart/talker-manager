@@ -155,6 +155,16 @@ const deleteTalker = async (req, res, next) => {
     .catch((err) => next(err));
 };
 
+const searchByName = (req, res, next) => {
+  const { q } = req.query;
+  readJson(talkerPath)
+    .then((content) => {
+      const talkersArr = content.filter(({ name }) => name.includes(q));
+      res.status(200).json(talkersArr);
+    })
+    .catch((err) => next(err));
+};
+
 const talkerValidation = [validateToken, 
   validateName, validateAge,
    validateTalk, validateTalkInfos];
@@ -166,4 +176,5 @@ talkerValidation,
 addTalker,
 updateTalker,
 deleteTalker,
-validateToken };
+validateToken,
+searchByName };

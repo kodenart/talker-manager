@@ -10,6 +10,7 @@ addTalker,
 updateTalker,
 deleteTalker,
 validateToken,
+searchByName,
  } = require('./middlewares');
 
 const talkerPath = './talker.json';
@@ -29,6 +30,8 @@ app.get('/talker', (req, res, next) => {
     .then((content) => res.status(200).json(content))
     .catch((err) => next(err));
 });
+
+app.get('/talker/search', validateToken, searchByName);
 
 app.get('/talker/:id', (req, res, next) => {
   const { id } = req.params;
