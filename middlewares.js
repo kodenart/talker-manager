@@ -89,23 +89,6 @@ const validateTalkInfos = (req, res, next) => {
   next();
 };
 
-// const addTalker = (req, res, next) => {
-//   const { name, age, talk: { watchedAt, rate } } = req.body;
-//   readJson('./talker.json').then((content) => {
-//     // auto increment alike
-//     const id = content.length + 1;
-//     const newTalkPerson = { name, age, id, talk: { watchedAt, rate } };
-//     content.push(newTalkPerson);
-//     writeJson('./talker.json', content)
-//       .then(() => {
-//         // setting req.talker so I can access on the next middleware.
-//         req.talker = newTalkPerson;
-//         next();
-//       })
-//       .catch((err) => next(err));
-//   }).catch((err) => next(err));
-// };
-
 const addTalker = (req, res, next) => {
   const { name, age, talk: { watchedAt, rate } } = req.body;
   let finalArr = [];
